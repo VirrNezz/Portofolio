@@ -1,0 +1,1066 @@
+<!-- 
+File: index.html
+Kode HTML + CSS + JavaScript dalam 1 file
+-->
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> NESINEZZ | Cyber Portfolio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <!-- CSS DALAM HTML -->
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none !important;
+        }
+
+        :root {
+            --neon-blue: #00eeff;
+            --neon-blue-light: #4df0ff;
+            --neon-white: #ffffff;
+            --bg-dark: #0a0a0a;
+            --bg-darker: #050505;
+            --glow: rgba(0, 238, 255, 0.7);
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: var(--bg-dark);
+            color: var(--neon-white);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* ===== LOADING SCREEN ===== */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-darker);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            transform: translateY(-100%);
+            pointer-events: none;
+        }
+
+        .loading-profile {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 3px solid var(--neon-blue);
+            padding: 5px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 40px var(--glow),
+                        inset 0 0 30px var(--glow);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .loading-profile img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            filter: grayscale(30%) contrast(120%);
+        }
+
+        .loading-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            color: var(--neon-blue);
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px var(--neon-blue);
+            letter-spacing: 3px;
+        }
+
+        .progress-container {
+            width: 300px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-blue-light));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 20px var(--neon-blue);
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.4), 
+                transparent);
+            animation: shine 2s infinite;
+        }
+
+        /* ===== CUSTOM CURSOR ===== */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--neon-blue);
+            pointer-events: none;
+            z-index: 9998;
+            mix-blend-mode: difference;
+            transition: transform 0.2s ease;
+            box-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        .cursor-follower {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--neon-blue-light);
+            pointer-events: none;
+            z-index: 9997;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        /* ===== BACKGROUND EFFECTS ===== */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .grid-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 238, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 238, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -2;
+            opacity: 0.3;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            opacity: 0;
+            animation: fadeIn 1s forwards 0.5s;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .profile-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+
+        .profile-img {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            border: 4px solid var(--neon-blue);
+            padding: 8px;
+            object-fit: cover;
+            box-shadow: 0 0 50px var(--glow),
+                        inset 0 0 40px var(--glow);
+            animation: hologram 4s infinite;
+            transition: transform 0.5s ease;
+        }
+
+        .profile-img:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--neon-blue), 
+                transparent);
+            animation: scan 3s linear infinite;
+            border-radius: 50%;
+        }
+
+        .nickname {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--neon-blue);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-shadow: 0 0 15px var(--neon-blue);
+            position: relative;
+            display: inline-block;
+            padding: 0 20px;
+        }
+
+        .nickname::before,
+        .nickname::after {
+            content: '»';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neon-blue);
+            font-size: 30px;
+            opacity: 0.7;
+            animation: blink 1.5s infinite;
+        }
+
+        .nickname::before {
+            left: -10px;
+        }
+
+        .nickname::after {
+            right: -10px;
+        }
+
+        .tagline {
+            font-size: 18px;
+            color: var(--neon-white);
+            margin-bottom: 40px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        /* ===== SOCIAL LINKS ===== */
+        .social-section {
+            margin-top: 80px;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--neon-blue), 
+                transparent);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .social-card {
+            background: rgba(10, 20, 30, 0.6);
+            border: 2px solid var(--neon-blue);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .social-card:nth-child(1) { animation: cardAppear 0.5s forwards 0.7s; }
+        .social-card:nth-child(2) { animation: cardAppear 0.5s forwards 0.9s; }
+        .social-card:nth-child(3) { animation: cardAppear 0.5s forwards 1.1s; }
+        .social-card:nth-child(4) { animation: cardAppear 0.5s forwards 1.3s; }
+        .social-card:nth-child(5) { animation: cardAppear 0.5s forwards 1.5s; }
+        .social-card:nth-child(6) { animation: cardAppear 0.5s forwards 1.7s; }
+
+        .social-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 238, 255, 0.2), 
+                transparent);
+            transition: left 0.6s ease;
+        }
+
+        .social-card:hover::before {
+            left: 100%;
+        }
+
+        .social-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 0 40px var(--glow),
+                        0 0 80px var(--glow),
+                        inset 0 0 20px rgba(0, 238, 255, 0.2);
+            border-color: var(--neon-blue-light);
+        }
+
+        .social-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            color: var(--neon-blue);
+            transition: all 0.4s ease;
+            display: inline-block;
+        }
+
+        .social-card:hover .social-icon {
+            transform: rotateY(360deg) scale(1.2);
+            color: var(--neon-white);
+            text-shadow: 0 0 30px var(--neon-blue);
+        }
+
+        .social-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: var(--neon-white);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .social-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .social-link {
+            display: inline-block;
+            padding: 12px 30px;
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            border-radius: 30px;
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .social-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--neon-blue), 
+                transparent);
+            transition: left 0.5s ease;
+            z-index: -1;
+        }
+
+        .social-card:hover .social-link::before {
+            left: 100%;
+        }
+
+        .social-card:hover .social-link {
+            background: var(--neon-blue);
+            color: var(--bg-dark);
+            box-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        /* ===== GLITCH EFFECT ===== */
+        .glitch {
+            position: relative;
+            display: inline-block;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+
+        .glitch::before {
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+            color: #ff00ff;
+            z-index: -1;
+        }
+
+        .glitch::after {
+            animation: glitch-anim2 4s infinite linear alternate-reverse;
+            color: #00ffff;
+            z-index: -2;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            margin-top: 80px;
+            padding: 30px;
+            border-top: 1px solid rgba(0, 238, 255, 0.2);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        .cyber-text {
+            color: var(--neon-blue);
+            text-shadow: 0 0 5px var(--neon-blue);
+            letter-spacing: 1px;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-20px) rotate(2deg); }
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes hologram {
+            0%, 100% { 
+                box-shadow: 0 0 50px var(--glow),
+                            inset 0 0 40px var(--glow);
+                filter: brightness(1);
+            }
+            50% { 
+                box-shadow: 0 0 70px var(--glow),
+                            inset 0 0 60px var(--glow);
+                filter: brightness(1.3);
+            }
+        }
+
+        @keyframes scan {
+            0% { top: 0; opacity: 0.5; }
+            50% { top: 100%; opacity: 1; }
+            100% { top: 0; opacity: 0.5; }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 0.2; }
+        }
+
+        @keyframes cardAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes glitch-anim {
+            0% { transform: translate(0); }
+            20% { transform: translate(-3px, 3px); }
+            40% { transform: translate(-3px, -3px); }
+            60% { transform: translate(3px, 3px); }
+            80% { transform: translate(3px, -3px); }
+            100% { transform: translate(0); }
+        }
+
+        @keyframes glitch-anim2 {
+            0% { transform: translate(0); }
+            10% { transform: translate(4px, -2px); }
+            30% { transform: translate(-4px, 2px); }
+            50% { transform: translate(2px, 4px); }
+            70% { transform: translate(-2px, -4px); }
+            90% { transform: translate(0); }
+        }
+
+        @keyframes glitch-noise {
+            0% { clip-path: inset(40% 0 61% 0); }
+            5% { clip-path: inset(92% 0 1% 0); }
+            10% { clip-path: inset(43% 0 1% 0); }
+            15% { clip-path: inset(25% 0 58% 0); }
+            20% { clip-path: inset(54% 0 7% 0); }
+            25% { clip-path: inset(58% 0 43% 0); }
+            30% { clip-path: inset(98% 0 1% 0); }
+            35% { clip-path: inset(3% 0 46% 0); }
+            40% { clip-path: inset(54% 0 53% 0); }
+            45% { clip-path: inset(75% 0 9% 0); }
+            50% { clip-path: inset(63% 0 25% 0); }
+            55% { clip-path: inset(78% 0 2% 0); }
+            60% { clip-path: inset(92% 0 5% 0); }
+            65% { clip-path: inset(58% 0 45% 0); }
+            70% { clip-path: inset(23% 0 64% 0); }
+            75% { clip-path: inset(76% 0 5% 0); }
+            80% { clip-path: inset(54% 0 35% 0); }
+            85% { clip-path: inset(89% 0 3% 0); }
+            90% { clip-path: inset(94% 0 2% 0); }
+            95% { clip-path: inset(53% 0 35% 0); }
+            100% { clip-path: inset(34% 0 66% 0); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .nickname {
+                font-size: 36px;
+                letter-spacing: 3px;
+            }
+            
+            .social-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-img {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .social-card {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nickname {
+                font-size: 28px;
+                letter-spacing: 2px;
+            }
+            
+            .profile-img {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .social-icon {
+                font-size: 40px;
+            }
+            
+            .social-name {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-profile">
+            <img src="NesiNezz.jpg" alt="Profile Photo">
+        </div>
+        <div class="loading-text">Memuat Data...</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-follower" id="cursorFollower"></div>
+
+    <!-- Background Effects -->
+    <div class="grid-lines"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <header>
+            <div class="profile-container">
+                <img src="profile.jpg" alt="NesiNezz_" class="profile-img">
+                <div class="scan-line"></div>
+            </div>
+            
+            <h1 class="nickname glitch" data-text="NesiNezz_">
+                <span class="glitch-text">NesiNezz_</span>
+            </h1>
+            
+            <p class="tagline">
+                Digital Artisan • Cyber Security Enthusiast • Neon Aesthetic Designer
+                <br>Building the future one line of code at a time
+            </p>
+        </header>
+
+        <main>
+            <section class="social-section">
+                <h2 class="section-title">All My Connection</h2>
+                
+                <div class="social-grid">
+                    <!-- Discord -->
+                    <div class="social-card">
+                        <div class="social-icon">
+                            <i class="fab fa-discord"></i>
+                        </div>
+                        <h3 class="social-name">Discord</h3>
+                        <p class="social-desc">Jika Kamu Furry Dan Ingin Membuat Pertemanan Furry Yang Lebih Banyak Bisa Masuk Ke Server Ini</p>
+                        <a href="https://discord.gg/example" target="_blank" class="social-link">JOIN SERVER</a>
+                    </div>
+
+                    <!-- Telegram -->
+                    <div class="social-card">
+                        <div class="social-icon">
+                            <i class="fab fa-telegram-plane"></i>
+                        </div>
+                        <h3 class="social-name">Telegram</h3>
+                        <p class="social-desc">Chat Aku Untuk Membeli Akun Premium Murah Terpecaya Dan Ada Testimoni Yang Asli</p>
+                        <a href="https://t.me/example" target="_blank" class="social-link">CHAT NOW</a>
+                    </div>
+
+                    <!-- WhatsApp -->
+                    <div class="social-card">
+                        <div class="social-icon">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <h3 class="social-name">WhatsApp</h3>
+                        <p class="social-desc">Chat Aku Di WhatsApp Untuk Hal Berbau Bisnis Dan Akun Premium Juga Bisa Beli Di Sini</p>
+                        <a href="https://wa.me/6281234567890" target="_blank" class="social-link">CHAT NOW</a>
+                    </div>
+
+                    <!-- Instagram -->
+                    <div class="social-card">
+                        <div class="social-icon">
+                            <i class="fab fa-instagram"></i>
+                        </div>
+                        <h3 class="social-name">Instagram</h3>
+                        <p class="social-desc">Aku Juga Ada Di Media Sosial Lain Nya Yuk Follow Biar Tau Update Dimana Ada🤭</p>
+                        <a href="https://instagram.com/example" target="_blank" class="social-link">VIEW PROFILE</a>
+                    </div>
+
+                    <!-- GitHub -->
+                    <div class="social-card">
+                        <div class="social-icon">
+                            <i class="fab fa-github"></i>
+                        </div>
+                        <h3 class="social-name">GitHub</h3>
+                        <p class="social-desc">Kadang Main Di Github Buat Hosting Gratis Sekaligus Buat Kode Kalo Gabut Heheheha</p>
+                        <a href="https://github.com/example" target="_blank" class="social-link">EXPLORE CODE</a>
+                    </div>
+
+                    <!-- TikTok -->
+                    <div class="social-card">
+                        <div class="social-icon">
+                            <i class="fab fa-tiktok"></i>
+                        </div>
+                        <h3 class="social-name">TikTok</h3>
+                        <p class="social-desc">Jika Kamu Liat Ini Di luar Tiktok Ya Ini Sumber Utamaku Untuk Sering Upload Disini</p>
+                        <a href="https://tiktok.com/@NesiNezz_" target="_blank" class="social-link">VIEW PROFILE</a>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2024 <span class="cyber-text">CYPH3R_V01D</span> | Cyber Neon Portfolio v2.0</p>
+            <p>All systems operational • Connection secure • Transmission encrypted</p>
+        </footer>
+    </div>
+
+    <!-- JavaScript dalam HTML -->
+    <script>
+        // ===== VARIABLES =====
+        const loadingScreen = document.getElementById('loadingScreen');
+        const progressBar = document.getElementById('progressBar');
+        const cursor = document.getElementById('cursor');
+        const cursorFollower = document.getElementById('cursorFollower');
+        const particlesContainer = document.getElementById('particles');
+        const nickname = document.querySelector('.nickname');
+        const socialCards = document.querySelectorAll('.social-card');
+
+        // ===== LOADING ANIMATION =====
+        let progress = 0;
+        const loadingInterval = setInterval(() => {
+            progress += Math.random() * 15 + 5;
+            if (progress > 100) progress = 100;
+            
+            progressBar.style.width = progress + '%';
+            
+            // Efek glitch saat loading hampir selesai
+            if (progress > 90) {
+                progressBar.style.boxShadow = `0 0 30px ${getRandomColor()}`;
+            }
+            
+            if (progress === 100) {
+                clearInterval(loadingInterval);
+                
+                // Delay sebelum transisi
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                    
+                    // Animasi foto naik ke atas
+                    const profileImg = document.querySelector('.profile-img');
+                    profileImg.style.transition = 'all 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                    profileImg.style.transform = 'translateY(-50px) scale(1.1)';
+                    
+                    setTimeout(() => {
+                        profileImg.style.transform = 'translateY(0) scale(1)';
+                    }, 1000);
+                    
+                    // Mulai efek partikel
+                    createParticles();
+                }, 500);
+            }
+        }, 150);
+
+        // ===== CUSTOM CURSOR =====
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                cursorFollower.style.left = e.clientX + 'px';
+                cursorFollower.style.top = e.clientY + 'px';
+            }, 50);
+            
+            // Efek saat hover link
+            const hoveredElement = e.target.closest('a, .social-card, button');
+            if (hoveredElement) {
+                cursor.style.transform = 'scale(1.5)';
+                cursorFollower.style.transform = 'scale(0.8)';
+                cursorFollower.style.borderColor = '#ff00ff';
+            } else {
+                cursor.style.transform = 'scale(1)';
+                cursorFollower.style.transform = 'scale(1)';
+                cursorFollower.style.borderColor = 'var(--neon-blue-light)';
+            }
+        });
+
+        // ===== PARTICLE SYSTEM =====
+        function createParticles() {
+            for (let i = 0; i < 50; i++) {
+                createParticle();
+            }
+        }
+
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.style.position = 'absolute';
+            particle.style.width = Math.random() * 5 + 2 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.background = getRandomBlueColor();
+            particle.style.borderRadius = '50%';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.top = Math.random() * 100 + 'vh';
+            particle.style.boxShadow = `0 0 10px ${getRandomBlueColor()}`;
+            particle.style.pointerEvents = 'none';
+            
+            particlesContainer.appendChild(particle);
+            
+            // Animasi partikel
+            animateParticle(particle);
+        }
+
+        function animateParticle(particle) {
+            let x = parseFloat(particle.style.left);
+            let y = parseFloat(particle.style.top);
+            let speedX = (Math.random() - 0.5) * 2;
+            let speedY = (Math.random() - 0.5) * 2;
+            
+            function move() {
+                x += speedX;
+                y += speedY;
+                
+                // Boundary check
+                if (x < 0 || x > 100) speedX *= -1;
+                if (y < 0 || y > 100) speedY *= -1;
+                
+                particle.style.left = x + 'vw';
+                particle.style.top = y + 'vh';
+                
+                // Opacity pulse
+                const pulse = Math.sin(Date.now() * 0.002 + x) * 0.3 + 0.7;
+                particle.style.opacity = pulse;
+                
+                requestAnimationFrame(move);
+            }
+            
+            move();
+        }
+
+        // ===== CLICK PARTICLE EXPLOSION =====
+        document.addEventListener('click', (e) => {
+            createClickExplosion(e.clientX, e.clientY);
+            playClickSound();
+        });
+
+        function createClickExplosion(x, y) {
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'fixed';
+                particle.style.width = Math.random() * 8 + 4 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.background = getRandomBlueColor();
+                particle.style.borderRadius = '50%';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.boxShadow = `0 0 15px ${getRandomBlueColor()}`;
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '9996';
+                
+                document.body.appendChild(particle);
+                
+                // Animasi ledakan
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 5 + 2;
+                const velocityX = Math.cos(angle) * speed;
+                const velocityY = Math.sin(angle) * speed;
+                
+                let posX = x;
+                let posY = y;
+                let opacity = 1;
+                
+                function explode() {
+                    posX += velocityX;
+                    posY += velocityY;
+                    opacity -= 0.02;
+                    
+                    particle.style.left = posX + 'px';
+                    particle.style.top = posY + 'px';
+                    particle.style.opacity = opacity;
+                    
+                    if (opacity > 0) {
+                        requestAnimationFrame(explode);
+                    } else {
+                        particle.remove();
+                    }
+                }
+                
+                explode();
+            }
+        }
+
+        // ===== GLITCH EFFECT =====
+        function triggerGlitch() {
+            nickname.classList.add('glitch-active');
+            
+            // Random glitch intensity
+            const intensity = Math.random() * 3;
+            
+            nickname.style.textShadow = `
+                ${intensity}px 0 ${getRandomColor()},
+                -${intensity}px 0 ${getRandomColor()},
+                0 ${intensity}px ${getRandomColor()}
+            `;
+            
+            nickname.style.transform = `translate(${Math.random() * 6 - 3}px, ${Math.random() * 6 - 3}px)`;
+            
+            setTimeout(() => {
+                nickname.classList.remove('glitch-active');
+                nickname.style.textShadow = '0 0 15px var(--neon-blue)';
+                nickname.style.transform = 'translate(0, 0)';
+            }, 300);
+        }
+
+        // Random glitch setiap 5-15 detik
+        setInterval(triggerGlitch, Math.random() * 10000 + 5000);
+
+        // Glitch saat hover nickname
+        nickname.addEventListener('mouseenter', () => {
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    triggerGlitch();
+                }, i * 100);
+            }
+        });
+
+        // ===== HOVER EFFECT SOCIAL CARDS =====
+        socialCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                playHoverSound();
+                
+                // Efek shake kecil
+                card.style.animation = 'none';
+                setTimeout(() => {
+                    card.style.animation = 'glitch-anim 0.3s linear';
+                }, 10);
+                
+                // Tambah partikel di sekitar card
+                const rect = card.getBoundingClientRect();
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        createCardParticle(rect);
+                    }, i * 50);
+                }
+            });
+        });
+
+        function createCardParticle(rect) {
+            const particle = document.createElement('div');
+            particle.style.position = 'fixed';
+            particle.style.width = '4px';
+            particle.style.height = '4px';
+            particle.style.background = getRandomBlueColor();
+            particle.style.borderRadius = '50%';
+            particle.style.left = rect.left + Math.random() * rect.width + 'px';
+            particle.style.top = rect.top + Math.random() * rect.height + 'px';
+            particle.style.boxShadow = `0 0 10px ${getRandomBlueColor()}`;
+            particle.style.pointerEvents = 'none';
+            particle.style.zIndex = '9996';
+            
+            document.body.appendChild(particle);
+            
+            // Animasi
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * 30 + 10;
+            
+            let progress = 0;
+            function animate() {
+                progress += 0.05;
+                const currentDistance = distance * (1 - progress);
+                
+                particle.style.left = (parseFloat(particle.style.left) + Math.cos(angle) * 2) + 'px';
+                particle.style.top = (parseFloat(particle.style.top) + Math.sin(angle) * 2) + 'px';
+                particle.style.opacity = 1 - progress;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    particle.remove();
+                }
+            }
+            
+            animate();
+        }
+
+        // ===== SOUND EFFECTS (Web Audio API) =====
+        function playHoverSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                console.log("Audio context not supported");
+            }
+        }
+
+        function playClickSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                console.log("Audio context not supported");
+            }
+        }
+
+        // ===== HELPER FUNCTIONS =====
+        function getRandomBlueColor() {
+            const blues = [
+                '#00eeff', '#4df0ff', '#00ccff', '#0099ff',
+                '#66ffff', '#33ccff', '#0088cc'
+            ];
+            return blues[Math.floor(Math.random() * blues.length)];
+        }
+
+        function getRandomColor() {
+            const colors = [
+                '#00eeff', '#ff00ff', '#00ff88', '#ffff00',
+                '#ff5500', '#aa00ff', '#00aaff'
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // ===== INITIALIZE =====
+        window.addEventListener('load', () => {
+            // Tambah class untuk animasi masuk
+            document.body.classList.add('loaded');
+        });
+
+        // ===== RESPONSIVE ADJUSTMENTS =====
+        window.addEventListener('resize', () => {
+            // Reset particle system jika layar berubah
+            particlesContainer.innerHTML = '';
+            if (!loadingScreen.classList.contains('hidden')) {
+                createParticles();
+            }
+        });
+    </script>
+</body>
+</html>
